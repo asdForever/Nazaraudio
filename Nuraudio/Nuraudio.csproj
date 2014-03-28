@@ -98,34 +98,84 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="ApplicationIcon.png" />
-    <Content Include="Background.png">
+    <Content Include="Audio\01_kz.mp3">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="files\01_kz.mp3" />
-    <Content Include="files\01_ru.mp3" />
-    <Content Include="files\02_kz.mp3" />
-    <Content Include="files\02_ru.mp3" />
-    <Content Include="files\03_kz.mp3" />
-    <Content Include="files\03_ru.mp3" />
-    <Content Include="files\04_kz.mp3" />
-    <Content Include="files\04_ru.mp3" />
-    <Content Include="files\05_kz.mp3" />
-    <Content Include="files\05_ru.mp3" />
-    <Content Include="files\06_kz.mp3" />
-    <Content Include="files\06_ru.mp3" />
-    <Content Include="files\07_kz.mp3" />
-    <Content Include="files\07_ru.mp3" />
-    <Content Include="files\08_kz.mp3" />
-    <Content Include="files\08_ru.mp3" />
-    <Content Include="files\09_kz.mp3" />
-    <Content Include="files\09_ru.mp3" />
-    <Content Include="files\10_kz.mp3" />
-    <Content Include="files\10_ru.mp3" />
-    <Content Include="files\11_kz.mp3" />
-    <Content Include="files\11_ru.mp3" />
-    <Content Include="files\12_kz.mp3" />
-    <Content Include="files\12_ru.mp3" />
+    <Content Include="Audio\01_ru.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Audio\02_kz.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Audio\02_ru.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Audio\03_kz.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Audio\03_ru.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Audio\04_kz.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Audio\04_ru.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Audio\05_kz.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Audio\05_ru.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Audio\06_kz.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Audio\06_ru.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Audio\07_kz.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Audio\07_ru.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Audio\08_kz.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Audio\08_ru.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Audio\09_kz.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Audio\09_ru.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Audio\10_kz.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Audio\10_ru.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Audio\11_kz.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Audio\11_ru.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Audio\12_kz.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Audio\12_ru.mp3">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\173x173.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Images\62x62.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Images\bachground1.png" />
     <Content Include="Images\background.png" />
     <Content Include="Images\bottom-bar-borders.png" />
@@ -135,7 +185,7 @@
     <Content Include="Images\buttonLikeActive.png" />
     <Content Include="Images\buttonTwitter.png" />
     <Content Include="Images\buttonTwitterActive.png" />
-    <Content Include="Images\cover.jpg" />
+    <Content Include="Images\cover.png" />
     <Content Include="Images\logo.png" />
     <Content Include="Images\logo1.png" />
     <Content Include="Images\menuBackground.png" />
@@ -157,6 +207,12 @@
     <Content Include="Toolkit.Content\ApplicationBar.Check.png" />
     <Content Include="Toolkit.Content\ApplicationBar.Delete.png" />
     <Content Include="Toolkit.Content\ApplicationBar.Select.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MyAudioPlaybackAgent\MyAudioPlaybackAgent.csproj">
+      <Project>{119B961E-8014-4E8E-AE21-F39B355E64E3}</Project>
+      <Name>MyAudioPlaybackAgent</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\Silverlight for Phone\$(TargetFrameworkVersion)\Microsoft.Silverlight.$(TargetFrameworkProfile).Overrides.targets" />
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\Silverlight for Phone\$(TargetFrameworkVersion)\Microsoft.Silverlight.CSharp.targets" />

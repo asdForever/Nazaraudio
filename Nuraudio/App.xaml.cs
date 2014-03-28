@@ -1,17 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Animation;
+﻿using System.Windows;
 using System.Windows.Navigation;
-using System.Windows.Shapes;
 using Microsoft.Phone.Controls;
 using Microsoft.Phone.Shell;
+using System.IO.IsolatedStorage;
+using System.Windows.Resources;
 
 namespace Nuraudio
 {
@@ -55,8 +47,30 @@ namespace Nuraudio
                 // Caution:- Use this under debug mode only. Application that disables user idle detection will continue to run
                 // and consume battery power when the user is not using the phone.
                 PhoneApplicationService.Current.UserIdleDetectionMode = IdleDetectionMode.Disabled;
+                Microsoft.Phone.BackgroundAudio.BackgroundAudioPlayer.Instance.Close();
             }
 
+            // If it's a new track, set the track
+            using (IsolatedStorageFile storage = IsolatedStorageFile.GetUserStoreForApplication())
+            {
+                if (!storage.FileExists("01_kz.mp3"))
+                {
+                    string _filePath = "Audio/01_kz.mp3";
+                    StreamResourceInfo resource = Application.GetResourceStream(new System.Uri(_filePath, System.UriKind.Relative));
+
+                    using (IsolatedStorageFileStream file = storage.CreateFile("01_kz.mp3"))
+                    {
+                        int chunkSize = 4096;
+                        byte[] bytes = new byte[chunkSize];
+                        int byteCount;
+
+                        while ((byteCount = resource.Stream.Read(bytes, 0, chunkSize)) > 0)
+                        {
+                            file.Write(bytes, 0, byteCount);
+                        }
+                    }
+                }
+            }
         }
 
         // Code to execute when the application is launching (eg, from Start)

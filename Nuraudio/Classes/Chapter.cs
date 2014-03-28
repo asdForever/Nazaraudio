@@ -9,9 +9,9 @@ namespace NazarAudio.Classes
     {
         public int chapterID;
         public List<string> titleList;
-        public List<string> pathToMp3List;
+        public List<double> durationList;
 
-        public Chapter(int chapterIDIn, string chapterNameKzIn, string pathToMp3KzIn, string chapterNameRuIn, string pathToMp3RuIn)
+        public Chapter(int chapterIDIn, string chapterNameKzIn, string chapterNameRuIn, double durationKzIn, double durationRuIn)
         {
             chapterID = chapterIDIn;
 
@@ -19,9 +19,17 @@ namespace NazarAudio.Classes
             titleList.Add(chapterNameKzIn);
             titleList.Add(chapterNameRuIn);
 
-            pathToMp3List = new List<string>();
-            pathToMp3List.Add(pathToMp3KzIn);
-            pathToMp3List.Add(pathToMp3RuIn);
+            durationList = new List<double>();
+            durationList.Add(durationKzIn);
+            durationList.Add(durationRuIn);
+        }
+
+        public int getTrackNumber()
+        {
+            if (StaticVariables.langID == 0)
+                return chapterID - 1;
+            else
+                return chapterID + 11;
         }
     }
 }

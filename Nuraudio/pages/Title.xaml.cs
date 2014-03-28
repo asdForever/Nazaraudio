@@ -82,10 +82,10 @@ namespace AlmaCloud.pages
         private void LayoutRoot_Loaded(object sender, RoutedEventArgs e)
         {
             startAnimation();
-            try { while (NavigationService.RemoveBackEntry() != null) ; }
-            catch (NullReferenceException ex) {
-                MessageBox.Show("NullReferenceException during Title.LayoutRoot_Loaded: " + ex.Message, "Error", MessageBoxButton.OK);
-            }
+            //try { while (NavigationService.RemoveBackEntry() != null) ; }
+            //catch (NullReferenceException ex) {
+            //    MessageBox.Show("NullReferenceException during Title.LayoutRoot_Loaded: " + ex.Message, "Error", MessageBoxButton.OK);
+            //}
         }
     }
 }

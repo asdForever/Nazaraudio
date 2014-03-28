@@ -16,7 +16,7 @@
 
     <!--LayoutRoot is the root grid where all page content is placed-->
     <Grid x:Name="LayoutRoot" Loaded="LayoutRoot_Loaded">
-         <Grid x:Name="backgroundGrid" Opacity="0">
+        <Grid x:Name="backgroundGrid" Opacity="0">
             <Grid.Background>
                 <ImageBrush Stretch="None">
                     <ImageBrush.ImageSource>
@@ -26,11 +26,11 @@
             </Grid.Background>
         </Grid>
         <Grid x:Name="whiteGrid" Background="White"></Grid>
-        <Grid x:Name="background1Grid" Visibility="Collapsed">
+        <Grid x:Name="background1Grid" Width="480" Height="768" Visibility="Collapsed">
             <Grid.Background>
-                <ImageBrush Stretch="None">
+                <ImageBrush Stretch="UniformToFill">
                     <ImageBrush.ImageSource>
-                        <BitmapImage CreateOptions="BackgroundCreation" UriSource="/Images/cover.jpg"/>
+                        <BitmapImage CreateOptions="BackgroundCreation" UriSource="/Images/cover.png"/>
                     </ImageBrush.ImageSource>
                 </ImageBrush>
             </Grid.Background>

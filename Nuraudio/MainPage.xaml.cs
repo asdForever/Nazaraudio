@@ -9,12 +9,17 @@ using Microsoft.Phone.Controls;
 using Microsoft.Phone.Shell;
 using Microsoft.Xna.Framework.Media;
 using NazarAudio.Classes;
+using System.Windows.Threading;
+using System.IO.IsolatedStorage;
+using System.Windows.Resources;
 
 namespace Nuraudio
 {
     public partial class MainPage : PhoneApplicationPage
     {
         List<Chapter> chapterList = new List<Chapter>();
+        private DispatcherTimer timer = new DispatcherTimer();
+
         public MainPage()
         {
             InitializeComponent();
@@ -24,25 +29,34 @@ namespace Nuraudio
         private void ConstructUI()
         {
             addContentToListBox();
+            timer = new DispatcherTimer();
+            timer.Interval = TimeSpan.FromMilliseconds(2000);
+            timer.Tick += new EventHandler(timer_Tick);
+            timer.Start();
+
+            // Set PlayStateChanged handler
             Microsoft.Phone.BackgroundAudio.BackgroundAudioPlayer.Instance.PlayStateChanged += new EventHandler(Instance_PlayStateChanged);
+
+            // Set CompositionTarget.Rendering handler
+            //System.Windows.Media.CompositionTarget.Rendering += OnCompositionTargetRendering;
         }
 
         private void addContentToListBox()
         {
             listBoxChapterName.Items.Clear();
             chapterList.Clear();
-            chapterList.Add(new Chapter(1, "Жалғыз Отан – тәуелсіз Қазақстан", "/files/01_kz.mp3", "Единая Отчизна - независимый Казахстан", "/files/01_ru.mp3"));
-            chapterList.Add(new Chapter(2, "Жер тағдыры — ел тағдыры", "/files/02_kz.mp3", "Судьба земли - судьба страны", "/files/02_ru.mp3"));
-            chapterList.Add(new Chapter(3, "Садағаң кетейін, айналайын халқым!", "/files/03_kz.mp3", "На алтарь твой я жертвой взойду...", "/files/03_ru.mp3"));
-            chapterList.Add(new Chapter(4, "Тәуелсіздік – тәуекелі тұратындардың еншісі", "/files/04_kz.mp3", "Независимость - удел сильных духом", "/files/04_ru.mp3"));
-            chapterList.Add(new Chapter(5, "Ана тілі – ұлтымыздың айнасы", "/files/05_kz.mp3", "Родной язык - зеркало нации", "/files/05_ru.mp3"));
-            chapterList.Add(new Chapter(6, "Тарихтан тағылым ала алсақ", "/files/06_kz.mp3", "Уроки истории", "/files/06_ru.mp3"));
-            chapterList.Add(new Chapter(7, "Ел бірлігі – асыл қасиет", "/files/07_kz.mp3", "Единство народа - высшая добродетель", "/files/07_ru.mp3"));
-            chapterList.Add(new Chapter(8, "Ұлттық намыс – ұлы ұғым", "/files/08_kz.mp3", "Национальное достоинство - великая ценность", "/files/08_ru.mp3"));
-            chapterList.Add(new Chapter(9, "Демократия жарлықпен орнатылмайды", "/files/09_kz.mp3", "Демократия не устанавливается декретом", "/files/09_ru.mp3"));
-            chapterList.Add(new Chapter(10, "Сенгенің игілікті еңбегің болсын", "/files/10_kz.mp3", "Надеяться только на доблестный труд", "/files/10_ru.mp3"));
-            chapterList.Add(new Chapter(11, "Дәстүріңді баққаның – үмітіңді жаққаның", "/files/11_kz.mp3", "Следуя традициям, устремляться в будущее", "/files/11_ru.mp3"));
-            chapterList.Add(new Chapter(12, "Өрелі рухсыз өркениет жоқ", "/files/12_kz.mp3", "Без гуманизма нет цивилизации", "/files/12_ru.mp3"));
+            chapterList.Add(new Chapter(1, "Жалғыз Отан – тәуелсіз Қазақстан", "Единая Отчизна - независимый Казахстан", 710, 833));
+            chapterList.Add(new Chapter(2, "Жер тағдыры — ел тағдыры", "Судьба земли - судьба страны", 376, 519));
+            chapterList.Add(new Chapter(3, "Садағаң кетейін, айналайын халқым!", "На алтарь твой я жертвой взойду...", 512, 654));
+            chapterList.Add(new Chapter(4, "Тәуелсіздік – тәуекелі тұратындардың еншісі", "Независимость - удел сильных духом", 495, 567));
+            chapterList.Add(new Chapter(5, "Ана тілі – ұлтымыздың айнасы", "Родной язык - зеркало нации", 726, 1045));
+            chapterList.Add(new Chapter(6, "Тарихтан тағылым ала алсақ", "Уроки истории", 636, 699));
+            chapterList.Add(new Chapter(7, "Ел бірлігі – асыл қасиет", "Единство народа - высшая добродетель", 416, 518));
+            chapterList.Add(new Chapter(8, "Ұлттық намыс – ұлы ұғым", "Национальное достоинство - великая ценность", 676, 1013));
+            chapterList.Add(new Chapter(9, "Демократия жарлықпен орнатылмайды", "Демократия не устанавливается декретом", 612, 831));
+            chapterList.Add(new Chapter(10, "Сенгенің игілікті еңбегің болсын", "Надеяться только на доблестный труд", 268, 421));
+            chapterList.Add(new Chapter(11, "Дәстүріңді баққаның – үмітіңді жаққаның", "Следуя традициям, устремляться в будущее", 397, 576));
+            chapterList.Add(new Chapter(12, "Өрелі рухсыз өркениет жоқ", "Без гуманизма нет цивилизации", 511, 729));
 
             foreach (Chapter chapter in chapterList)
             {
@@ -78,41 +92,41 @@ namespace Nuraudio
                 if (grid != null)
                 {
                     StaticVariables.currentChapterID = Convert.ToInt32(grid.Tag) - 1;
-                    PlaySound(
-                        chapterList[StaticVariables.currentChapterID].titleList[StaticVariables.langID],
-                        chapterList[StaticVariables.currentChapterID].pathToMp3List[StaticVariables.langID]);
+                    if (MyAudioPlaybackAgent.AudioPlayer.currentTrackNumber > chapterList[StaticVariables.currentChapterID].getTrackNumber())
+                    {
+                        int difference = MyAudioPlaybackAgent.AudioPlayer.currentTrackNumber - chapterList[StaticVariables.currentChapterID].getTrackNumber();
+                        for (int i = 0; i < difference; i++)
+                        {
+                            Microsoft.Phone.BackgroundAudio.BackgroundAudioPlayer.Instance.SkipPrevious();
+                        }
+                        MyAudioPlaybackAgent.AudioPlayer.currentTrackNumber = chapterList[StaticVariables.currentChapterID].getTrackNumber();
+                    }
+                    else
+                    {
+                        int difference = chapterList[StaticVariables.currentChapterID].getTrackNumber() - MyAudioPlaybackAgent.AudioPlayer.currentTrackNumber;
+                        for (int i = 0; i < difference; i++)
+                        {
+                            Microsoft.Phone.BackgroundAudio.BackgroundAudioPlayer.Instance.SkipNext();
+                        }
+                        MyAudioPlaybackAgent.AudioPlayer.currentTrackNumber = chapterList[StaticVariables.currentChapterID].getTrackNumber();
+                    }
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Exception during MainPage.LayoutRoot_Loaded: " + ex.Message, "Error", MessageBoxButton.OK);
+                MessageBox.Show("Exception during MainPage.ContentGrid_Tap: " + ex.Message, "Error", MessageBoxButton.OK);
             }
         }
 
-        void PlaySound(string fileName, string pathToMp3)
+        void timer_Tick(object sender, EventArgs e)
         {
-            try
+            if (Microsoft.Phone.BackgroundAudio.BackgroundAudioPlayer.Instance.PlayerState == Microsoft.Phone.BackgroundAudio.PlayState.Playing)
             {
-                Song song = Song.FromUri("name", new Uri(pathToMp3, UriKind.Relative));
-                Microsoft.Xna.Framework.FrameworkDispatcher.Update();
-                StaticVariables.currentPlayPauseImageUri = "music_pause_not_pressed.png";
-                setImageSource(playImage, StaticVariables.currentPlayPauseImageUri);
-                MediaPlayer.Play(song);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Exception during MainPage.LayoutRoot_Loaded: " + ex.Message, "Error", MessageBoxButton.OK);
+                audioProgressBar.Value = Microsoft.Phone.BackgroundAudio.BackgroundAudioPlayer.Instance.Position.TotalSeconds;
+                audioProgressBar.Maximum = Microsoft.Phone.BackgroundAudio.BackgroundAudioPlayer.Instance.Track.Duration.TotalSeconds;
             }
         }
 
-        private void LayoutRoot_Loaded(object sender, RoutedEventArgs e)
-        {
-            try { while (NavigationService.RemoveBackEntry() != null) ; }
-            catch (System.NullReferenceException ex)
-            {
-                MessageBox.Show("NullReferenceException during MainPage.LayoutRoot_Loaded: " + ex.Message, "Error", MessageBoxButton.OK);
-            }
-        }
         private void textBlockLanguage_Tap(object sender, System.Windows.Input.GestureEventArgs e)
         {
             TextBlock tb = (TextBlock)sender;
@@ -128,9 +142,24 @@ namespace Nuraudio
                 }
 
                 tb.Text = StaticVariables.languageArray[StaticVariables.langID];
-                PlaySound(
-                         chapterList[StaticVariables.currentChapterID].titleList[StaticVariables.langID],
-                         chapterList[StaticVariables.currentChapterID].pathToMp3List[StaticVariables.langID]);
+
+                if (StaticVariables.langID == 0)
+                {
+                    for (int i = 0; i < 12; i++)
+                    {
+                        Microsoft.Phone.BackgroundAudio.BackgroundAudioPlayer.Instance.SkipPrevious();
+                    }
+                    MyAudioPlaybackAgent.AudioPlayer.currentTrackNumber = chapterList[StaticVariables.currentChapterID].getTrackNumber();
+                }
+                else
+                {
+                    for (int i = 0; i < 12; i++)
+                    {
+                        Microsoft.Phone.BackgroundAudio.BackgroundAudioPlayer.Instance.SkipNext();
+                    }
+                    MyAudioPlaybackAgent.AudioPlayer.currentTrackNumber = chapterList[StaticVariables.currentChapterID].getTrackNumber();
+                }
+
                 UpdateUI();
             }
         }
@@ -145,7 +174,6 @@ namespace Nuraudio
             if (img != null)
                 setImageSource(img, "music_previous_pressed.png");
         }
-
         private void ImagePrevious_ManipulationCompleted(object sender, System.Windows.Input.ManipulationCompletedEventArgs e)
         {
             System.Windows.Controls.Image img = (System.Windows.Controls.Image)sender;
@@ -154,15 +182,17 @@ namespace Nuraudio
             if (StaticVariables.currentChapterID > 0)
             {
                 StaticVariables.currentChapterID--;
+                Microsoft.Phone.BackgroundAudio.BackgroundAudioPlayer.Instance.SkipPrevious();
             }
             else
             {
                 StaticVariables.currentChapterID = chapterList.Count - 1;
+                for (int i = 0; i < 12; i++)
+                {
+                    Microsoft.Phone.BackgroundAudio.BackgroundAudioPlayer.Instance.SkipNext();
+                }
             }
-            PlaySound(
-                chapterList[StaticVariables.currentChapterID].titleList[StaticVariables.langID],
-                chapterList[StaticVariables.currentChapterID].pathToMp3List[StaticVariables.langID]);
-
+            MyAudioPlaybackAgent.AudioPlayer.currentTrackNumber = chapterList[StaticVariables.currentChapterID].getTrackNumber();
         }
 
         private void ImagePlay_ManipulationStarted(object sender, System.Windows.Input.ManipulationStartedEventArgs e)
@@ -181,25 +211,34 @@ namespace Nuraudio
                 setImageSource(img, StaticVariables.currentPlayPauseImageUri);
             }
         }
-
         private void ImagePlay_ManipulationCompleted(object sender, System.Windows.Input.ManipulationCompletedEventArgs e)
         {
-            System.Windows.Controls.Image img = (System.Windows.Controls.Image)sender;
-            if (img != null)
+            try
             {
-                if (StaticVariables.currentPlayPauseImageUri.Contains("play"))
+                System.Windows.Controls.Image img = (System.Windows.Controls.Image)sender;
+                if (img != null)
                 {
-                    PlaySound(
-                        chapterList[StaticVariables.currentChapterID].titleList[StaticVariables.langID],
-                        chapterList[StaticVariables.currentChapterID].pathToMp3List[StaticVariables.langID]);
+                    if (StaticVariables.currentPlayPauseImageUri.Contains("play"))
+                    {
+                        StaticVariables.currentPlayPauseImageUri = "music_pause_not_pressed.png";
+
+                        //if (Microsoft.Phone.BackgroundAudio.PlayState.Paused == Microsoft.Phone.BackgroundAudio.BackgroundAudioPlayer.Instance.PlayerState)
+                        //{
+                        Microsoft.Phone.BackgroundAudio.BackgroundAudioPlayer.Instance.Play();
+                        //}
+                    }
+                    else if (StaticVariables.currentPlayPauseImageUri.Contains("pause"))
+                    {
+                        StaticVariables.currentPlayPauseImageUri = "music_play_not_pressed.png";
+                        if (Microsoft.Phone.BackgroundAudio.PlayState.Playing == Microsoft.Phone.BackgroundAudio.BackgroundAudioPlayer.Instance.PlayerState)
+                        {
+                            Microsoft.Phone.BackgroundAudio.BackgroundAudioPlayer.Instance.Pause();
+                        }
+                    }
+                    setImageSource(img, StaticVariables.currentPlayPauseImageUri);
                 }
-                else if (StaticVariables.currentPlayPauseImageUri.Contains("pause"))
-                {
-                    StaticVariables.currentPlayPauseImageUri = "music_play_not_pressed.png";
-                    MediaPlayer.Pause();
-                }
-                setImageSource(img, StaticVariables.currentPlayPauseImageUri);
             }
+            catch (Exception ex) { }
         }
 
         private void ImageNext_ManipulationStarted(object sender, System.Windows.Input.ManipulationStartedEventArgs e)
@@ -208,7 +247,6 @@ namespace Nuraudio
             if (img != null)
                 setImageSource(img, "music_next_pressed.png");
         }
-
         private void ImageNext_ManipulationCompleted(object sender, System.Windows.Input.ManipulationCompletedEventArgs e)
         {
             System.Windows.Controls.Image img = (System.Windows.Controls.Image)sender;
@@ -217,14 +255,17 @@ namespace Nuraudio
             if (StaticVariables.currentChapterID < chapterList.Count - 1)
             {
                 StaticVariables.currentChapterID++;
+                Microsoft.Phone.BackgroundAudio.BackgroundAudioPlayer.Instance.SkipNext();
             }
             else
             {
                 StaticVariables.currentChapterID = 0;
+                for (int i = 0; i < 12; i++)
+                {
+                    Microsoft.Phone.BackgroundAudio.BackgroundAudioPlayer.Instance.SkipPrevious();
+                }
             }
-            PlaySound(
-                chapterList[StaticVariables.currentChapterID].titleList[StaticVariables.langID],
-                chapterList[StaticVariables.currentChapterID].pathToMp3List[StaticVariables.langID]);
+            MyAudioPlaybackAgent.AudioPlayer.currentTrackNumber = chapterList[StaticVariables.currentChapterID].getTrackNumber();
         }
 
         private void setImageSource(System.Windows.Controls.Image sender, string imgName)
@@ -235,33 +276,120 @@ namespace Nuraudio
             sender.Source = bi;
         }
 
-        private void Slider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        void Instance_PlayStateChanged(object sender, EventArgs e)
         {
             try
             {
-                Slider slider = (Slider)sender;
-                if (slider != null && MediaPlayer.Queue.ActiveSong != null)
+                switch (Microsoft.Phone.BackgroundAudio.BackgroundAudioPlayer.Instance.PlayerState)
                 {
-                    Song song = Song.FromUri("name", new Uri(chapterList[StaticVariables.currentChapterID].pathToMp3List[StaticVariables.langID], UriKind.Relative));
+                    case Microsoft.Phone.BackgroundAudio.PlayState.Playing:
+                        StaticVariables.currentPlayPauseImageUri = "music_pause_not_pressed.png";
+                        audioProgressBar.Maximum = Microsoft.Phone.BackgroundAudio.BackgroundAudioPlayer.Instance.Track.Duration.TotalSeconds;
+                        break;
 
+                    case Microsoft.Phone.BackgroundAudio.PlayState.Paused:
+                        StaticVariables.currentPlayPauseImageUri = "music_play_not_pressed.png";
+                        break;
+                }
+                setImageSource(playImage, StaticVariables.currentPlayPauseImageUri);
+            }
+            catch (Exception ex) { }
+        }
 
-                    //long maxDuration = (long)MediaPlayer.NaturalDuration.TimeSpan.Seconds;
-                    //long nextPosition = (long)maxDuration * (long)slider.Value;
-                    //MediaPlayer.controls.currentPosition
-                    //MediaPlayer.PlayPosition.Add(new TimeSpan((long)nextPosition));
+        private void audioProgressBar_Tap(object sender, System.Windows.Input.GestureEventArgs e)
+        {
+            var pos = e.GetPosition(audioProgressBar).X;
+            var width = audioProgressBar.ActualWidth;
+            audioProgressBar.Value = (pos / width) * audioProgressBar.Maximum;
+
+            try
+            {
+                if (Microsoft.Phone.BackgroundAudio.BackgroundAudioPlayer.Instance.PlayerState == Microsoft.Phone.BackgroundAudio.PlayState.Playing)
+                {
+                    TimeSpan ts = new TimeSpan(0, 0, (int)audioProgressBar.Value);
+                    Microsoft.Phone.BackgroundAudio.BackgroundAudioPlayer.Instance.Position = ts;
                 }
             }
-            catch (NullReferenceException ex)
+            catch (InvalidOperationException ex)
             {
-                MessageBox.Show("NullReferenceException during MainPage.LayoutRoot_Loaded: " + ex.Message, "Error", MessageBoxButton.OK);
+                MessageBox.Show("InvalidOperationException during MainPage.UIElement_OnTap: " + ex.Message, "Error", MessageBoxButton.OK);
             }
         }
 
-        void Instance_PlayStateChanged(object sender, EventArgs e)
-        {
-            double duration = (sender as Microsoft.Phone.BackgroundAudio.BackgroundAudioPlayer).Track.Duration.TotalSeconds;
-            double currentPosition = (sender as Microsoft.Phone.BackgroundAudio.BackgroundAudioPlayer).Position.TotalSeconds;
-            audioSlider.Value = currentPosition / duration * 100;
-        }
+        //private void audioProgressBar_ManipulationCompleted(object sender, RoutedEventArgs e)
+        //{
+        //    try
+        //    {
+        //        if (Microsoft.Phone.BackgroundAudio.BackgroundAudioPlayer.Instance.PlayerState == Microsoft.Phone.BackgroundAudio.PlayState.Playing)
+        //        {
+        //            TimeSpan ts = new TimeSpan(0, 0, (int)audioProgressBar.Value);
+        //            Microsoft.Phone.BackgroundAudio.BackgroundAudioPlayer.Instance.Position = ts;
+        //        }
+        //    }
+        //    catch (InvalidOperationException ex)
+        //    {
+        //        MessageBox.Show("InvalidOperationException during MainPage.audioProgressBar_ValueChanged: " + ex.Message, "Error", MessageBoxButton.OK);
+        //    }
+        //}
+
+        //void OnCompositionTargetRendering(object sender, EventArgs args)
+        //{
+        //    Microsoft.Phone.BackgroundAudio.AudioTrack audioTrack = null;
+        //    TimeSpan position = TimeSpan.Zero;
+        //    TimeSpan duration = TimeSpan.Zero;
+
+        //    try
+        //    {
+        //        // Sometimes these property accesses will raise exceptions
+        //        audioTrack = Microsoft.Phone.BackgroundAudio.BackgroundAudioPlayer.Instance.Track;
+
+        //        if (audioTrack != null)
+        //        {
+        //            duration = audioTrack.Duration;
+        //            position = Microsoft.Phone.BackgroundAudio.BackgroundAudioPlayer.Instance.Position;
+        //        }
+        //    }
+        //    catch
+        //    {
+        //    }
+
+        //    if (audioTrack != null)
+        //    {
+        //        if (duration.Ticks > 0)
+        //            audioProgressBar.Value = (double)position.Ticks / duration.Ticks;
+        //        else
+        //            audioProgressBar.Value = 0;
+        //    }
+        //    else
+        //    {
+        //        audioProgressBar.Value = 0;
+        //    }
+        //}
+
+        //void OnSliderValueChanged(object sender, RoutedPropertyChangedEventArgs<double> args)
+        //{
+
+        //    Microsoft.Phone.BackgroundAudio.AudioTrack audioTrack = null;
+        //    TimeSpan duration = TimeSpan.Zero;
+
+        //    try
+        //    {
+        //        // Sometimes these property accesses will raise exceptions
+        //        audioTrack = Microsoft.Phone.BackgroundAudio.BackgroundAudioPlayer.Instance.Track;
+
+        //        if (audioTrack != null)
+        //            duration = audioTrack.Duration;
+        //    }
+        //    catch
+        //    {
+        //    }
+
+        //    if (audioTrack == null)
+        //        return;
+
+        //    //long ticks = (long)(args.NewValue);
+        //    long ticks = (long)(args.NewValue * duration.Ticks);
+        //    Microsoft.Phone.BackgroundAudio.BackgroundAudioPlayer.Instance.Position = new TimeSpan(ticks);
+        //}
     }
 }
