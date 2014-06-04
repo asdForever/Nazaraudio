@@ -28,17 +28,17 @@ namespace MyAudioPlaybackAgent
             new Track("12_kz.mp3", "Тарау 12. Өрелi рухсыз өркениет жоқ"),
 
             new Track("01_ru.mp3", "Глава 1. Eдиная Отчизна - независимый Казахстан"),
-            new Track("01_ru.mp3", "Глава 2. Судьба земли - судьба страны"),
-            new Track("01_ru.mp3", "Глава 3. На алтарь твой я жертвой взойду"),
-            new Track("01_ru.mp3", "Глава 4. Независимость - удел сильных духом"),
-            new Track("01_ru.mp3", "Глава 5. Родной язык - зеркало нации"),
-            new Track("01_ru.mp3", "Глава 6. Уроки истории"),
-            new Track("01_ru.mp3", "Глава 7. Eдинство народа-высшая добродетель"),
-            new Track("01_ru.mp3", "Глава 8. Национальное достоинство - великая ценность"),
-            new Track("01_ru.mp3", "Глава 9. Демократия не устанавливается декретом"),
-            new Track("01_ru.mp3", "Глава 10. Надеяться только на доблестный труд"),
-            new Track("01_ru.mp3", "Глава 11. Следуя традициям,устремляться в будущее"),
-            new Track("01_ru.mp3", "Глава 12. Без гуманизма нет цивилизации"),
+            new Track("02_ru.mp3", "Глава 2. Судьба земли - судьба страны"),
+            new Track("03_ru.mp3", "Глава 3. На алтарь твой я жертвой взойду"),
+            new Track("04_ru.mp3", "Глава 4. Независимость - удел сильных духом"),
+            new Track("05_ru.mp3", "Глава 5. Родной язык - зеркало нации"),
+            new Track("06_ru.mp3", "Глава 6. Уроки истории"),
+            new Track("07_ru.mp3", "Глава 7. Eдинство народа-высшая добродетель"),
+            new Track("08_ru.mp3", "Глава 8. Национальное достоинство - великая ценность"),
+            new Track("09_ru.mp3", "Глава 9. Демократия не устанавливается декретом"),
+            new Track("10_ru.mp3", "Глава 10. Надеяться только на доблестный труд"),
+            new Track("11_ru.mp3", "Глава 11. Следуя традициям,устремляться в будущее"),
+            new Track("12_ru.mp3", "Глава 12. Без гуманизма нет цивилизации")
         };
 
         // A playlist made up of AudioTrack items.
@@ -66,15 +66,39 @@ namespace MyAudioPlaybackAgent
                         _playList.Add(new AudioTrack(item.uri, item.trackName, item.artist, item.album, null));
                     }
                 }
-                catch (Exception e) { }
+                catch (Exception ex)
+                {
+                }
             }
         }
 
         private void PlayNextTrack(BackgroundAudioPlayer player)
         {
-            if (++currentTrackNumber >= _playList.Count)
+            if (currentTrackNumber == _playList.Count)
+            {
+                currentTrackNumber = _playList.Count / 2;
+            }
+            else if (currentTrackNumber == _playList.Count / 2 - 1)
             {
                 currentTrackNumber = 0;
+            }
+            else
+            {
+                currentTrackNumber++;
+            }
+
+            PlayTrack(player);
+        }
+
+        private void ChangeLanguage(BackgroundAudioPlayer player)
+        {
+            if (currentTrackNumber >= _playList.Count / 2)
+            {
+                currentTrackNumber -= _playList.Count / 2;
+            }
+            else
+            {
+                currentTrackNumber += _playList.Count / 2;
             }
 
             PlayTrack(player);
@@ -82,9 +106,17 @@ namespace MyAudioPlaybackAgent
 
         private void PlayPreviousTrack(BackgroundAudioPlayer player)
         {
-            if (--currentTrackNumber < 0)
+            if (currentTrackNumber == 0)
             {
-                currentTrackNumber = _playList.Count - 1;
+                currentTrackNumber = _playList.Count / 2 - 1;
+            }
+            else if (currentTrackNumber == _playList.Count / 2)
+            {
+                currentTrackNumber = _playList.Count;
+            }
+            else
+            {
+                currentTrackNumber--;
             }
 
             PlayTrack(player);
@@ -98,9 +130,9 @@ namespace MyAudioPlaybackAgent
                     // If it's a new track, set the track
                     using (IsolatedStorageFile storage = IsolatedStorageFile.GetUserStoreForApplication())
                     {
-                        if (!storage.FileExists(_trackList[currentTrackNumber].fileName))
+                        string _filePath = "Audio/" + _trackList[currentTrackNumber].fileName;
+                        if (!storage.FileExists(_trackList[currentTrackNumber].fileName) && IsSpaceIsAvailable(fileLength(_filePath)))
                         {
-                            string _filePath = "Audio/" + _trackList[currentTrackNumber].fileName;
                             StreamResourceInfo resource = Application.GetResourceStream(new Uri(_filePath, UriKind.Relative));
 
                             using (IsolatedStorageFileStream file = storage.CreateFile(_trackList[currentTrackNumber].fileName))
@@ -125,7 +157,9 @@ namespace MyAudioPlaybackAgent
                     player.Play();
                 }
             }
-            catch (Exception e) { }
+            catch (Exception ex)
+            {
+            }
         }
 
         /// Code to execute on Unhandled Exceptions
@@ -142,7 +176,9 @@ namespace MyAudioPlaybackAgent
                 // http://blogs.msdn.com/b/wpukcoe/archive/2012/02/11/background-audio-in-windows-phone-7-5-part-3.aspx
                 Microsoft.Phone.BackgroundAudio.BackgroundAudioPlayer.Instance.Track = null;
             }
-            catch (System.Exception ex) { }
+            catch (Exception ex)
+            {
+            }
         }
 
         /// <summary>
@@ -170,7 +206,9 @@ namespace MyAudioPlaybackAgent
                     // http://blogs.msdn.com/b/wpukcoe/archive/2012/02/11/background-audio-in-windows-phone-7-5-part-3.aspx
                     player.Track = null;
                 }
-                catch (System.Exception e) { }
+                catch (Exception ex)
+                {
+                }
                 NotifyComplete();
             }
         }
@@ -258,10 +296,10 @@ namespace MyAudioPlaybackAgent
                 case UserAction.Pause:
                     player.Pause();
                     break;
-                case UserAction.FastForward:
-                    player.FastForward();
+                case UserAction.FastForward: // change language
+                    ChangeLanguage(player);
                     break;
-                case UserAction.Rewind:
+                case UserAction.Rewind: // to first or last track
                     player.Rewind();
                     break;
                 case UserAction.Seek:
@@ -333,6 +371,39 @@ namespace MyAudioPlaybackAgent
         protected override void OnCancel()
         {
 
+        }
+
+        /// <summary>
+        /// Called to check file size
+        /// </summary>
+        private long fileLength(string path)
+        {
+            long fileLength = -1;
+            try
+            {
+                using (IsolatedStorageFile ISF = IsolatedStorageFile.GetUserStoreForApplication())
+                using (IsolatedStorageFileStream file = ISF.OpenFile(path, System.IO.FileMode.Open))
+                    fileLength = file.Length;
+            }
+            catch { }
+
+            return fileLength;
+        }
+
+        /// <summary>
+        /// Called to check if there enought space to save media in IsolatedStorage
+        /// </summary>
+        private bool IsSpaceIsAvailable(long spaceReq)
+        {
+            using (IsolatedStorageFile store = IsolatedStorageFile.GetUserStoreForApplication())
+            {
+                long spaceAvail = store.AvailableFreeSpace;
+                if (spaceReq > spaceAvail)
+                {
+                    return false;
+                }
+                return true;
+            }
         }
     }
 }

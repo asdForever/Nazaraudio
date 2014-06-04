@@ -36,6 +36,7 @@ namespace Nuraudio
 
             // Set PlayStateChanged handler
             Microsoft.Phone.BackgroundAudio.BackgroundAudioPlayer.Instance.PlayStateChanged += new EventHandler(Instance_PlayStateChanged);
+            StaticVariables.currentChapterID = 0;
 
             // Set CompositionTarget.Rendering handler
             //System.Windows.Media.CompositionTarget.Rendering += OnCompositionTargetRendering;
@@ -92,24 +93,15 @@ namespace Nuraudio
                 if (grid != null)
                 {
                     StaticVariables.currentChapterID = Convert.ToInt32(grid.Tag) - 1;
-                    if (MyAudioPlaybackAgent.AudioPlayer.currentTrackNumber > chapterList[StaticVariables.currentChapterID].getTrackNumber())
+                    int difference = Math.Abs(MyAudioPlaybackAgent.AudioPlayer.currentTrackNumber - chapterList[StaticVariables.currentChapterID].getTrackNumber());
+                    for (int i = 0; i < difference; i++)
                     {
-                        int difference = MyAudioPlaybackAgent.AudioPlayer.currentTrackNumber - chapterList[StaticVariables.currentChapterID].getTrackNumber();
-                        for (int i = 0; i < difference; i++)
-                        {
+                        if (MyAudioPlaybackAgent.AudioPlayer.currentTrackNumber > chapterList[StaticVariables.currentChapterID].getTrackNumber())
                             Microsoft.Phone.BackgroundAudio.BackgroundAudioPlayer.Instance.SkipPrevious();
-                        }
-                        MyAudioPlaybackAgent.AudioPlayer.currentTrackNumber = chapterList[StaticVariables.currentChapterID].getTrackNumber();
-                    }
-                    else
-                    {
-                        int difference = chapterList[StaticVariables.currentChapterID].getTrackNumber() - MyAudioPlaybackAgent.AudioPlayer.currentTrackNumber;
-                        for (int i = 0; i < difference; i++)
-                        {
+                        else
                             Microsoft.Phone.BackgroundAudio.BackgroundAudioPlayer.Instance.SkipNext();
-                        }
-                        MyAudioPlaybackAgent.AudioPlayer.currentTrackNumber = chapterList[StaticVariables.currentChapterID].getTrackNumber();
                     }
+                    MyAudioPlaybackAgent.AudioPlayer.currentTrackNumber = chapterList[StaticVariables.currentChapterID].getTrackNumber();
                 }
             }
             catch (Exception ex)
@@ -145,18 +137,12 @@ namespace Nuraudio
 
                 if (StaticVariables.langID == 0)
                 {
-                    for (int i = 0; i < 12; i++)
-                    {
-                        Microsoft.Phone.BackgroundAudio.BackgroundAudioPlayer.Instance.SkipPrevious();
-                    }
+                    Microsoft.Phone.BackgroundAudio.BackgroundAudioPlayer.Instance.FastForward();
                     MyAudioPlaybackAgent.AudioPlayer.currentTrackNumber = chapterList[StaticVariables.currentChapterID].getTrackNumber();
                 }
                 else
                 {
-                    for (int i = 0; i < 12; i++)
-                    {
-                        Microsoft.Phone.BackgroundAudio.BackgroundAudioPlayer.Instance.SkipNext();
-                    }
+                    Microsoft.Phone.BackgroundAudio.BackgroundAudioPlayer.Instance.FastForward();
                     MyAudioPlaybackAgent.AudioPlayer.currentTrackNumber = chapterList[StaticVariables.currentChapterID].getTrackNumber();
                 }
 
@@ -187,10 +173,7 @@ namespace Nuraudio
             else
             {
                 StaticVariables.currentChapterID = chapterList.Count - 1;
-                for (int i = 0; i < 12; i++)
-                {
-                    Microsoft.Phone.BackgroundAudio.BackgroundAudioPlayer.Instance.SkipNext();
-                }
+                Microsoft.Phone.BackgroundAudio.BackgroundAudioPlayer.Instance.SkipPrevious();
             }
             MyAudioPlaybackAgent.AudioPlayer.currentTrackNumber = chapterList[StaticVariables.currentChapterID].getTrackNumber();
         }
@@ -221,11 +204,7 @@ namespace Nuraudio
                     if (StaticVariables.currentPlayPauseImageUri.Contains("play"))
                     {
                         StaticVariables.currentPlayPauseImageUri = "music_pause_not_pressed.png";
-
-                        //if (Microsoft.Phone.BackgroundAudio.PlayState.Paused == Microsoft.Phone.BackgroundAudio.BackgroundAudioPlayer.Instance.PlayerState)
-                        //{
                         Microsoft.Phone.BackgroundAudio.BackgroundAudioPlayer.Instance.Play();
-                        //}
                     }
                     else if (StaticVariables.currentPlayPauseImageUri.Contains("pause"))
                     {
@@ -238,7 +217,10 @@ namespace Nuraudio
                     setImageSource(img, StaticVariables.currentPlayPauseImageUri);
                 }
             }
-            catch (Exception ex) { }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Exception during MainPage.ImagePlay_ManipulationCompleted: " + ex.Message, "Error", MessageBoxButton.OK);
+            }
         }
 
         private void ImageNext_ManipulationStarted(object sender, System.Windows.Input.ManipulationStartedEventArgs e)
@@ -260,10 +242,7 @@ namespace Nuraudio
             else
             {
                 StaticVariables.currentChapterID = 0;
-                for (int i = 0; i < 12; i++)
-                {
-                    Microsoft.Phone.BackgroundAudio.BackgroundAudioPlayer.Instance.SkipPrevious();
-                }
+                Microsoft.Phone.BackgroundAudio.BackgroundAudioPlayer.Instance.SkipNext();
             }
             MyAudioPlaybackAgent.AudioPlayer.currentTrackNumber = chapterList[StaticVariables.currentChapterID].getTrackNumber();
         }
@@ -293,7 +272,10 @@ namespace Nuraudio
                 }
                 setImageSource(playImage, StaticVariables.currentPlayPauseImageUri);
             }
-            catch (Exception ex) { }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Exception during MainPage.Instance_PlayStateChanged: " + ex.Message, "Error", MessageBoxButton.OK);
+            }
         }
 
         private void audioProgressBar_Tap(object sender, System.Windows.Input.GestureEventArgs e)
@@ -315,81 +297,5 @@ namespace Nuraudio
                 MessageBox.Show("InvalidOperationException during MainPage.UIElement_OnTap: " + ex.Message, "Error", MessageBoxButton.OK);
             }
         }
-
-        //private void audioProgressBar_ManipulationCompleted(object sender, RoutedEventArgs e)
-        //{
-        //    try
-        //    {
-        //        if (Microsoft.Phone.BackgroundAudio.BackgroundAudioPlayer.Instance.PlayerState == Microsoft.Phone.BackgroundAudio.PlayState.Playing)
-        //        {
-        //            TimeSpan ts = new TimeSpan(0, 0, (int)audioProgressBar.Value);
-        //            Microsoft.Phone.BackgroundAudio.BackgroundAudioPlayer.Instance.Position = ts;
-        //        }
-        //    }
-        //    catch (InvalidOperationException ex)
-        //    {
-        //        MessageBox.Show("InvalidOperationException during MainPage.audioProgressBar_ValueChanged: " + ex.Message, "Error", MessageBoxButton.OK);
-        //    }
-        //}
-
-        //void OnCompositionTargetRendering(object sender, EventArgs args)
-        //{
-        //    Microsoft.Phone.BackgroundAudio.AudioTrack audioTrack = null;
-        //    TimeSpan position = TimeSpan.Zero;
-        //    TimeSpan duration = TimeSpan.Zero;
-
-        //    try
-        //    {
-        //        // Sometimes these property accesses will raise exceptions
-        //        audioTrack = Microsoft.Phone.BackgroundAudio.BackgroundAudioPlayer.Instance.Track;
-
-        //        if (audioTrack != null)
-        //        {
-        //            duration = audioTrack.Duration;
-        //            position = Microsoft.Phone.BackgroundAudio.BackgroundAudioPlayer.Instance.Position;
-        //        }
-        //    }
-        //    catch
-        //    {
-        //    }
-
-        //    if (audioTrack != null)
-        //    {
-        //        if (duration.Ticks > 0)
-        //            audioProgressBar.Value = (double)position.Ticks / duration.Ticks;
-        //        else
-        //            audioProgressBar.Value = 0;
-        //    }
-        //    else
-        //    {
-        //        audioProgressBar.Value = 0;
-        //    }
-        //}
-
-        //void OnSliderValueChanged(object sender, RoutedPropertyChangedEventArgs<double> args)
-        //{
-
-        //    Microsoft.Phone.BackgroundAudio.AudioTrack audioTrack = null;
-        //    TimeSpan duration = TimeSpan.Zero;
-
-        //    try
-        //    {
-        //        // Sometimes these property accesses will raise exceptions
-        //        audioTrack = Microsoft.Phone.BackgroundAudio.BackgroundAudioPlayer.Instance.Track;
-
-        //        if (audioTrack != null)
-        //            duration = audioTrack.Duration;
-        //    }
-        //    catch
-        //    {
-        //    }
-
-        //    if (audioTrack == null)
-        //        return;
-
-        //    //long ticks = (long)(args.NewValue);
-        //    long ticks = (long)(args.NewValue * duration.Ticks);
-        //    Microsoft.Phone.BackgroundAudio.BackgroundAudioPlayer.Instance.Position = new TimeSpan(ticks);
-        //}
     }
 }

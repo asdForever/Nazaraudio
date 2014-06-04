@@ -50,26 +50,57 @@ namespace Nuraudio
                 Microsoft.Phone.BackgroundAudio.BackgroundAudioPlayer.Instance.Close();
             }
 
-            // If it's a new track, set the track
-            using (IsolatedStorageFile storage = IsolatedStorageFile.GetUserStoreForApplication())
+            Microsoft.Xna.Framework.Media.MediaLibrary library = new Microsoft.Xna.Framework.Media.MediaLibrary();
+
+            try
             {
-                if (!storage.FileExists("01_kz.mp3"))
+                // If it's a new track, set the track
+                using (IsolatedStorageFile storage = IsolatedStorageFile.GetUserStoreForApplication())
                 {
-                    string _filePath = "Audio/01_kz.mp3";
-                    StreamResourceInfo resource = Application.GetResourceStream(new System.Uri(_filePath, System.UriKind.Relative));
-
-                    using (IsolatedStorageFileStream file = storage.CreateFile("01_kz.mp3"))
+                    if (!storage.FileExists("01_kz.mp3"))
                     {
-                        int chunkSize = 4096;
-                        byte[] bytes = new byte[chunkSize];
-                        int byteCount;
+                        string _filePath = "Audio/01_kz.mp3";
+                        StreamResourceInfo resource = Application.GetResourceStream(new System.Uri(_filePath, System.UriKind.Relative));
 
-                        while ((byteCount = resource.Stream.Read(bytes, 0, chunkSize)) > 0)
+                        using (IsolatedStorageFileStream file = storage.CreateFile("01_kz.mp3"))
                         {
-                            file.Write(bytes, 0, byteCount);
+                            int chunkSize = 4096;
+                            byte[] bytes = new byte[chunkSize];
+                            int byteCount;
+
+                            while ((byteCount = resource.Stream.Read(bytes, 0, chunkSize)) > 0)
+                            {
+                                file.Write(bytes, 0, byteCount);
+                            }
                         }
                     }
                 }
+            }
+            catch (System.Exception ex)
+            {
+                MessageBox.Show("Exception during App.App: " + ex.Message, "Error", MessageBoxButton.OK);
+            }
+        }
+
+        /// <summary>
+        /// method for creating a directory within isolated storage
+        /// </summary>
+        /// <param name="directoryName">Name of a directory to be created</param>
+        public static void CreateDirectory(string directoryName)
+        {
+            try
+            {
+                using (IsolatedStorageFile currentIsolatedStorage = IsolatedStorageFile.GetUserStoreForApplication())
+                {
+                    if (!string.IsNullOrEmpty(directoryName) && !currentIsolatedStorage.DirectoryExists(directoryName))
+                    {
+                        currentIsolatedStorage.CreateDirectory(directoryName);
+                    }
+                }
+            }
+            catch (System.Exception ex)
+            {
+                MessageBox.Show("Exception during App.CreateDirectory: " + ex.Message, "Error", MessageBoxButton.OK);
             }
         }
 
